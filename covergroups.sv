@@ -43,3 +43,15 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
         wildcard bins to_M3= (2'b?? => 2'b11);
     }
 endgroup
+
+// Spec. 21-4
+covergroup cg_nb_interrupts @(posedge tb.clk);
+    cp_transitions: coverpoint tb.iDUT.accmodule {
+        bins m1_in_m2 = (2'b10 => 2'b01);
+        bins m1_in_m3 = (2'b10 => 2'b11);
+    }
+    cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
+        bins interruptions = {[1:32]} ;
+    }
+    cp_both: cross cp_transitions, cp_nb_interrupts;
+endgroup
