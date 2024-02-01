@@ -24,8 +24,10 @@ module tb();
 // cg_reset cgi_reset = new;
 // cg_M1_interrupts cgi_M1_interrupts = new;
 // cg_all_modules_requestable cgi_all_modules_requestable = new;
+// cg_req_for_cycle cgi_req_for_cycle = new;
+cg_all_modules_doneable cgi_all_modules_doneable = new;
+// cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 // cg_nb_interrupts cgi_nb_interrupts = new;
-cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 
 initial begin
   clk = 0;
@@ -165,48 +167,56 @@ endtask
 //M1 indefinite.
 task access_M1id_2p();
   access_M1in_2p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 task access_M1id_3p();
   access_M1in_3p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 
 //M1 2nd cycles.
 task access_M1sd_2p();
   access_M1it_2p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 task access_M1sd_3p();
   access_M1it_3p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 
 //M2 2nd cycles.
 task access_M2sd_2p();
   access_M2in_2p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 task access_M2sd_3p();
   access_M2in_3p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 
 //M3 2nd cycles.
 task access_M3sd_2p();
   access_M3in_2p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 task access_M3sd_3p();
   access_M3in_3p();
-  #PERIOD;
+  #PERIOD req = '0;
+  done = '0;
 endtask
 
 task all_IDLE_np(int n);
