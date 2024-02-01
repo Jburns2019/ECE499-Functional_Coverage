@@ -44,14 +44,26 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
     }
 endgroup
 
+// Spec. 19
+covergroup cg_not_remember_last_req @(posedge tb.clk);
+    cp_transitions: coverpoint tb.iDUT.req {
+        bins m1_in_m2 = (2'b10 => 2'b01);
+        bins m1_in_m3 = (2'b11 => 2'b01);
+    }
+    cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
+        bins interruptions = {[1:2^32]};
+    }
+    // cp_both: cross cp_transitions, cp_nb_interrupts;
+endgroup
+
 // Spec. 21-4
 covergroup cg_nb_interrupts @(posedge tb.clk);
     cp_transitions: coverpoint tb.iDUT.accmodule {
         bins m1_in_m2 = (2'b10 => 2'b01);
-        bins m1_in_m3 = (2'b10 => 2'b11);
+        bins m1_in_m3 = (2'b11 => 2'b01);
     }
     cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
-        bins interruptions = {[1:32]} ;
+        bins interruptions = {[1:2^32]};
     }
-    cp_both: cross cp_transitions, cp_nb_interrupts;
+    // cp_both: cross cp_transitions, cp_nb_interrupts;
 endgroup
