@@ -1,1 +1,7 @@
 *.sh
+*.rpt
+*.vcd
+transcript
+*.ucdb
+work/*
+covhtmlreport/*
