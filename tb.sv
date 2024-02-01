@@ -21,10 +21,11 @@ module tb();
   always
     #(PERIOD/2) clk = ~clk;
 
-//cg_reset cgi_reset = new;
-cg_M1_interrupts cgi_M1_interrupts = new;
-cg_all_modules_requestable cgi_all_modules_requestable = new;
-cg_nb_interrupts cgi_nb_interrupts = new;
+// cg_reset cgi_reset = new;
+// cg_M1_interrupts cgi_M1_interrupts = new;
+// cg_all_modules_requestable cgi_all_modules_requestable = new;
+// cg_nb_interrupts cgi_nb_interrupts = new;
+cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 
 initial begin
   clk = 0;

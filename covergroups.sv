@@ -47,16 +47,22 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
     cp_both_3: cross cp_req_3, cp_accmodule_3;
 endgroup
 
-// Spec. 19
-covergroup cg_not_remember_last_req @(posedge tb.clk);
-    cp_transitions: coverpoint tb.iDUT.req {
-        bins m1_in_m2 = (2'b10 => 2'b01);
-        bins m1_in_m3 = (2'b11 => 2'b01);
+// Spec. 18 If no done signal is asserted for a module. Controller will cut off M2 and M3 if 2 cycles elapsed without a done signal.
+covergroup cg_cut_off_m2m3_after_2_cycle @(posedge tb.clk);
+    cp_accmodule: coverpoint tb.iDUT.done {
+        wildcard bins done_M2 = {3'b?0?};
+        wildcard bins done_M3 = {3'b0??};
     }
-    cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
-        bins interruptions = {[1:2^32]};
+    cp_transitions: coverpoint tb.iDUT.accmodule {
+        illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
+        illegal_bins m3_elapsed = (2'b11 => 2'b11 => 2'b11);
     }
-    // cp_both: cross cp_transitions, cp_nb_interrupts;
+    cp_both: cross cp_accmodule, cp_transitions;
+    // cp_both: cross cp_accmodule, cp_transitions {
+    //     option.cross_auto_bin_max = 0;
+    //     illegal_bins limit_violation_m2 = binsof(cp_accmodule.done_M2) && binsof(cp_transitions.m2_elapsed);
+    //     illegal_bins limit_violation_m3 = binsof(cp_accmodule.done_M3) && binsof(cp_transitions.m3_elapsed);
+    // }
 endgroup
 
 // Spec. 21-4
