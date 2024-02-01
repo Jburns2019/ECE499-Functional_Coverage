@@ -28,6 +28,7 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
     cp_accmodule_1: coverpoint tb.accmodule {
         wildcard bins to_M1 = (2'b?? => 2'b01);
     }
+    cp_both_1: cross cp_req_1, cp_accmodule_1;
 
     cp_req_2: coverpoint tb.req {
         wildcard bins req_M2 = {3'b?1?};
@@ -35,6 +36,7 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
     cp_accmodule_2: coverpoint tb.accmodule {
         wildcard bins to_M2 = (2'b?? => 2'b10);
     }
+    cp_both_2: cross cp_req_2, cp_accmodule_2;
 
     cp_req_3: coverpoint tb.req {
         wildcard bins req_M3 = {3'b1??};
@@ -42,4 +44,5 @@ covergroup cg_all_modules_requestable @(posedge tb.clk);
     cp_accmodule_3: coverpoint tb.accmodule {
         wildcard bins to_M3= (2'b?? => 2'b11);
     }
+    cp_both_3: cross cp_req_3, cp_accmodule_3;
 endgroup
