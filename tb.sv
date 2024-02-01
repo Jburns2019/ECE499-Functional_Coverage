@@ -1,4 +1,4 @@
-`timescale 1ns/1ns
+//`timescale 1ns/1ns
 `include "covergroups.sv"
 
 module tb();
@@ -25,6 +25,9 @@ cg_reset cgi_reset = new;
 cg_M1_interrupts cgi_M1_interrupts = new;
 cg_all_modules_requestable cgi_all_modules_requestable = new;
 cg_req_for_cycle cgi_req_for_cycle = new;
+cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
+cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
+cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 
 initial begin
   clk = 0;
