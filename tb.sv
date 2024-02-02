@@ -28,6 +28,7 @@ cg_req_for_cycle cgi_req_for_cycle = new;
 cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
 cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
+cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
 
 initial begin
   clk = 0;
@@ -85,6 +86,25 @@ initial begin
     all_M2sd_np(n);
     all_M3sd_np(n);
   end
+
+  access_M1in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M1in_2p();
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M2in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M3in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
   
   # 20 $dumpflush;
   $stop;
