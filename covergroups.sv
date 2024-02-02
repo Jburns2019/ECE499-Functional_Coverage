@@ -137,17 +137,22 @@ endgroup
 
 // Spec. 18
 covergroup cg_cut_off_m2m3_after_2_cycle @(posedge tb.clk);
-    cp_accmodule: coverpoint tb.iDUT.done {
+    cp_req: coverpoint tb.iDUT.req {
+        wildcard bins req_M2 = { 3'b?0? };
+        wildcard bins req_M3 = { 3'b0?? };
+    }
+    cp_done: coverpoint tb.iDUT.done {
         wildcard bins done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
         wildcard bins done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
     }
     cp_transitions: coverpoint tb.iDUT.accmodule {
+        // option.auto_bin_max = 0;
+        bins m2_cutoff = (2'b10 => 2'b10 => 2'b00);
+        bins m3_cutoff = (2'b11 => 2'b11 => 2'b00);
         illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
         illegal_bins m3_elapsed = (2'b11 => 2'b11 => 2'b11);
     }
-    cp_both: cross cp_accmodule, cp_transitions {
-        option.cross_auto_bin_max = 0;
-    }
+    cp_both: cross cp_req, cp_done, cp_transitions;
 endgroup
 
 // Spec. 21-4
@@ -159,15 +164,5 @@ covergroup cg_nb_interrupts @(posedge tb.clk);
     cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
         bins interruptions = {[1:2^32]};
     }
-    // cp_both: cross cp_transitions, cp_nb_interrupts;
-endgroup
-
-covergroup cg_accmodule_only_assert_at_posedge @(posedge tb.clk, posedge tb.req);
-    cp_req: coverpoint tb.req {
-        wildcard bins req = {3'b??1};
-    }
-    cp_accmodule: coverpoint tb.accmodule {
-        bins idle_to_M1 = ('0 => 2'b01);
-    }
-    cp_both: cross cp_req, cp_accmodule;
+    cp_both: cross cp_transitions, cp_nb_interrupts;
 endgroup
