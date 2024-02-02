@@ -29,8 +29,7 @@ cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
 cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
-cg_m2m3_at_most_keep_two_cycles cgi_m2m3_at_most_keep_two_cycles = new;
-// cg_all_modules_doneable cgi_all_modules_doneable = new;
+cg_all_modules_doneable cgi_all_modules_doneable = new;
 cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 cg_nb_interrupts cgi_nb_interrupts = new;
 
@@ -40,63 +39,26 @@ initial begin
   done = 3'b000;
   
   access_IDLE_2p();
-  #PERIOD
   access_IDLE_3p();
-  #PERIOD;
 
   access_M1in_2p();
-  #PERIOD;
   access_M1in_3p();
-  #PERIOD;
   access_M2in_2p();
-  #PERIOD;
   access_M2in_3p();
-  #PERIOD;
   access_M3in_2p();
-  #PERIOD;
   access_M3in_3p();
-  #PERIOD;
 
   access_M1it_2p();
-  #PERIOD;
   access_M1it_3p();
-  #PERIOD;
 
   access_M1id_2p();
-  #PERIOD
   access_M1id_3p();
-  #PERIOD;
   access_M1sd_2p();
-  #PERIOD;
   access_M1sd_3p();
-  #PERIOD;
   access_M2sd_2p();
-  #PERIOD;
   access_M2sd_3p();
-  #PERIOD;
   access_M3sd_2p();
-  #PERIOD;
   access_M3sd_3p();
-  #PERIOD;
-
-  access_M1in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
-  #(3*PERIOD);
-
-  access_M1in_2p();
-  #PERIOD req = '0;
-  #(3*PERIOD);
-
-  access_M2in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
-  #(3*PERIOD);
-
-  access_M3in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
-  #(3*PERIOD);
 
   for (int n = 2; n < 4; n++) begin
     all_IDLE_np(n);
@@ -111,23 +73,24 @@ initial begin
   end
 
   access_M1in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
+  req = 1 << M1;
+  #PERIOD reset_inputs();
   #(3*PERIOD);
+  assess_state("Long M1 requested while in M1", 2'b01, accmodule);
 
-  access_M1in_2p();
-  #PERIOD req = '0;
+  access_M1id_2p();
   #(3*PERIOD);
+  assess_state("long M1 accessed from idle", 2'b01, accmodule);
 
-  access_M2in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
+  access_M1it_2p();
   #(3*PERIOD);
+  assess_state("long M1 interrupts M2", 2'b00, accmodule);
 
   access_M3in_2p();
-  #PERIOD req = 1 << M1;
-  #PERIOD req = '0;
+  req = 1 << M1;
+  #PERIOD reset_inputs();
   #(3*PERIOD);
+  assess_state("long M1 interrupts M3", 2'b00, accmodule);
   
   # 20 $dumpflush;
   $stop;
@@ -138,22 +101,34 @@ initial begin
   $dumpvars(1, tb);
 end
 
-task request_reset_controller();
-  reset = 1;
+task assess_state(string name, logic [1:0] intended_state, logic [1:0] accmodule);
+  assert(accmodule == intended_state)
+  else $error("%s. %b instead of %b.", name, accmodule, intended_state);
+endtask
+
+task reset_inputs();
   req = '0;
   done = '0;
+endtask
+
+task request_reset_controller();
+  reset = 1;
+  reset_inputs();
   #PERIOD reset = 0;
 endtask
 
 //Idle.
 task access_IDLE_2p();
   request_reset_controller();
+  #PERIOD assess_state("accss to idle 2p", 2'b00, accmodule);
 endtask
 
 task access_IDLE_3p();
   access_M2in_3p();
-  #PERIOD done = 1 << M2;
+  done = 1 << M2;
   req = '0;
+  #PERIOD assess_state("accss to idle 3p", 2'b00, accmodule);
+  reset_inputs();
 endtask
 
 
@@ -161,12 +136,16 @@ endtask
 task access_M1in_2p();
   request_reset_controller();
   req = 1 << M1;
+  #PERIOD assess_state("accss to M1 2p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 task access_M1in_3p();
   access_M2in_3p();
-  #PERIOD done = 1 << M2;
+  done = 1 << M2;
   req = 1 << M1;
+  #PERIOD assess_state("accss to M1 3p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 
@@ -174,11 +153,15 @@ endtask
 task access_M2in_2p();
   request_reset_controller();
   req = 1 << M2;
+  #PERIOD assess_state("accss to M2 2p", 2'b10, accmodule);
+  reset_inputs();
 endtask
 
 task access_M2in_3p();
   request_reset_controller();
   req = 1 << M3 | 1 << M2;
+  #PERIOD assess_state("accss to M2 3p", 2'b10, accmodule);
+  reset_inputs();
 endtask
 
 
@@ -186,87 +169,95 @@ endtask
 task access_M3in_2p();
   request_reset_controller();
   req = 1 << M3;
+  #PERIOD assess_state("accss to M3 2p", 2'b11, accmodule);
+  reset_inputs();
 endtask
 
 task access_M3in_3p();
   access_M2in_3p();
-  #PERIOD done = 1 << M2;
+  done = 1 << M2;
   req = 1 << M3;
+  #PERIOD assess_state("accss to M3 3p", 2'b11, accmodule);
+  reset_inputs();
 endtask
 
 
 //Interupts.
 task access_M1it_2p();
   access_M2in_2p();
-  #PERIOD req = 1 << M1;
+  req = 1 << M1;
+  #PERIOD assess_state("accss to M1 interrupting M2 2p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 task access_M1it_3p();
   access_M2in_3p();
-  #PERIOD req = 1 << M1;
+  req = 1 << M1;
+  #PERIOD assess_state("accss to M1 interrupting M2 3p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 
 //M1 indefinite.
 task access_M1id_2p();
   access_M1in_2p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M1 indefinite access 2p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 task access_M1id_3p();
   access_M1in_3p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M1 indefinite access 3p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 
 //M1 2nd cycles.
 task access_M1sd_2p();
   access_M1it_2p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M1 interrupting M2, second sycle 2p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 task access_M1sd_3p();
   access_M1it_3p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M1 interrupting M2, second cycle 3p", 2'b01, accmodule);
+  reset_inputs();
 endtask
 
 
 //M2 2nd cycles.
 task access_M2sd_2p();
   access_M2in_2p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M2 second cycle 2p", 2'b10, accmodule);
+  reset_inputs();
 endtask
 
 task access_M2sd_3p();
   access_M2in_3p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M2 second cycle 3p", 2'b10, accmodule);
+  reset_inputs();
 endtask
 
 
 //M3 2nd cycles.
 task access_M3sd_2p();
   access_M3in_2p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M3 second cycle 2p", 2'b11, accmodule);
+  reset_inputs();
 endtask
 
 task access_M3sd_3p();
   access_M3in_3p();
-  #PERIOD req = '0;
-  done = '0;
+  #PERIOD assess_state("accss to M3 second cycle 3p", 2'b11, accmodule);
+  reset_inputs();
 endtask
 
 task all_IDLE_np(int n);
   for (int i= 0; i < 8; i++) begin
     if (n == 2) access_IDLE_2p();
     else access_IDLE_3p();
-    #PERIOD req = i;
+    req = i;
     #PERIOD;
   end
 endtask
@@ -275,9 +266,7 @@ task all_M1in_np(int n);
   for (int i= 0; i < 2; i++) begin
     if (n == 2) access_M1in_2p();
     else access_M1in_3p();
-    // M1in can only transit to IDLE or M1id.
-    if (i == 0) #PERIOD done = 1 << M1;
-    else        #PERIOD done = '0;
+    #PERIOD done = i;
     #PERIOD;
   end
 endtask
@@ -286,14 +275,14 @@ task all_M2in_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M2in_2p();
     else access_M2in_3p();
-    #PERIOD done = 1 << M2;
+    done = 1 << M2;
     req = i;
     #PERIOD;
   end
 
   if (n == 2) access_M2in_2p();
   else access_M2in_3p();
-  #PERIOD req = 1 << M1;
+  req = 1 << M1;
   #PERIOD;
 endtask
 
@@ -301,14 +290,14 @@ task all_M3in_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M3in_2p();
     else access_M3in_3p();
-    #PERIOD done = 1 << M3;
+    done = 1 << M3;
     req = i;
     #PERIOD;
   end
 
   if (n == 2) access_M3in_2p();
   else access_M3in_3p();
-  #PERIOD req = 1 << M1;
+  req = 1 << M1;
   #PERIOD;
 endtask
 
@@ -316,7 +305,7 @@ task all_M1it_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M1it_2p();
     else access_M1it_3p();
-    #PERIOD done = 1 << M1;
+    done = 1 << M1;
     req = i;
     #PERIOD;
   end
@@ -326,21 +315,17 @@ task all_M1id_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M1id_2p();
     else access_M1id_3p();
-    #PERIOD done = 1 << M1;
+    done = 1 << M1;
     req = i;
     #PERIOD;
   end
-
-  if (n == 2) access_M1id_2p();
-  else access_M1id_3p();
-  #PERIOD;
 endtask
 
 task all_M1sd_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M1sd_2p();
     else access_M1sd_3p();
-    #PERIOD req = i;
+    req = i;
     #PERIOD;
   end
 endtask
@@ -349,7 +334,7 @@ task all_M2sd_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M2sd_2p();
     else access_M2sd_3p();
-    #PERIOD req = i;
+    req = i;
     #PERIOD;
   end
 endtask
@@ -358,7 +343,7 @@ task all_M3sd_np(int n);
   for (int i = 0; i < 8; i++) begin
     if (n == 2) access_M3sd_2p();
     else access_M3sd_3p();
-    #PERIOD req = i;
+    req = i;
     #PERIOD;
   end
 endtask
