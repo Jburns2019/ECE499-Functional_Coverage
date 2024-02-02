@@ -110,13 +110,21 @@ endgroup
 
 //Spec. 10
 covergroup cg_M2_and_M3_no_it @(posedge tb.clk);
+    cp_done: coverpoint tb.done {
+        bins done_M1 = {3'b001};
+    }
     cp_req: coverpoint tb.req {
         bins req_M2 = {3'b010};
         bins req_M3 = {3'b100};
     }
     cp_accmodule: coverpoint tb.accmodule {
-        illegal_bins improper_M2_to_M3_interrupt = (2'b10 => 2'b11);
-        illegal_bins improper_M3_to_M2_interrupt = (2'b11 => 2'b10);
+        bins improper_M2_to_M3_interrupt = (2'b10 => 2'b11);
+        bins improper_M3_to_M2_interrupt = (2'b11 => 2'b10);
+    }
+    cp_both: cross cp_req, cp_done, cp_accmodule {
+        option.cross_auto_bin_max = 0;
+
+        illegal_bins 
     }
 endgroup
 
