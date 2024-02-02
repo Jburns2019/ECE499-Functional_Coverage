@@ -85,12 +85,10 @@ module controller(
       
       ps[M2in_2p]: begin
         if(done[M2]) begin
-          unique casez(req)
+          casez(req)
             3'b??1: ns[M1in_2p] = 1'b1;
-            3'b010: ns[M2in_2p] = 1'b1;
-            3'b110: ns[M2in_3p] = 1'b1;
             3'b100: ns[M3in_2p] = 1'b1;
-            3'b000: ns[IDLE_2p] = 1'b1;
+            default: ns[IDLE_2p] = 1'b1;
           endcase
         end
         else begin
@@ -105,12 +103,10 @@ module controller(
       
       ps[M3in_2p]: begin
         if(done[M3]) begin
-          unique casez(req)
+          casez(req)
             3'b??1: ns[M1in_2p] = 1'b1;
             3'b010: ns[M2in_2p] = 1'b1;
-            3'b110: ns[M2in_3p] = 1'b1;
-            3'b100: ns[M3in_2p] = 1'b1;
-            3'b000: ns[IDLE_2p] = 1'b1;
+            default: ns[IDLE_2p] = 1'b1;
           endcase
         end
         else begin  
@@ -125,12 +121,11 @@ module controller(
       
       ps[M1it_2p]: begin
         if(done[M1]) begin
-          unique casez(req)
-            3'b??1: ns[M1in_2p] = 1'b1;
+          casez(req)
             3'b010: ns[M2in_2p] = 1'b1;
             3'b110: ns[M2in_3p] = 1'b1;
             3'b100: ns[M3in_2p] = 1'b1;
-            3'b000: ns[IDLE_2p] = 1'b1;
+            default: ns[IDLE_2p] = 1'b1;
           endcase
         end
         else        ns[M1sd_2p] = 1'b1;
@@ -212,12 +207,10 @@ module controller(
       
       ps[M2in_3p]: begin
         if(done[M2]) begin
-          unique casez(req)
+          casez(req)
             3'b??1: ns[M1in_3p] = 1'b1;
-            3'b010: ns[M2in_3p] = 1'b1;
-            3'b110: ns[M3in_2p] = 1'b1;
             3'b100: ns[M3in_3p] = 1'b1;
-            3'b000: ns[IDLE_3p] = 1'b1;
+            default: ns[IDLE_3p] = 1'b1;
           endcase
         end
         else begin
@@ -232,12 +225,10 @@ module controller(
       
       ps[M3in_3p]: begin
         if(done[M3]) begin
-          unique casez(req)
+          casez(req)
             3'b??1: ns[M1in_3p] = 1'b1;
             3'b010: ns[M2in_3p] = 1'b1;
-            3'b110: ns[M3in_2p] = 1'b1;
-            3'b100: ns[M3in_3p] = 1'b1;
-            3'b000: ns[IDLE_3p] = 1'b1;
+            default: ns[IDLE_3p] = 1'b1;
           endcase
         end
         else begin
@@ -253,11 +244,10 @@ module controller(
       ps[M1it_3p]: begin
         if(done[M1]) begin
           casez(req)
-            3'b001: ns[M1in_3p] = 1'b1;
             3'b010: ns[M2in_3p] = 1'b1;
             3'b110: ns[M3in_2p] = 1'b1;
             3'b100: ns[M3in_3p] = 1'b1;
-            3'b000: ns[IDLE_3p] = 1'b1;
+            default: ns[IDLE_3p] = 1'b1;
           endcase
         end
         else        ns[M1sd_3p] = 1'b1;
