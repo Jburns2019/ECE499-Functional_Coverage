@@ -29,6 +29,9 @@ cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
 cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
+cg_all_modules_doneable cgi_all_modules_doneable = new;
+cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
+cg_nb_interrupts cgi_nb_interrupts = new;
 
 initial begin
   clk = 0;
@@ -74,6 +77,25 @@ initial begin
   #PERIOD;
   access_M3sd_3p();
   #PERIOD;
+
+  access_M1in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M1in_2p();
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M2in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
+
+  access_M3in_2p();
+  #PERIOD req = 1 << M1;
+  #PERIOD req = '0;
+  #(3*PERIOD);
 
   for (int n = 2; n < 4; n++) begin
     all_IDLE_np(n);

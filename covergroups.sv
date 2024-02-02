@@ -106,4 +106,59 @@ covergroup cg_2_cycle_M1_it @(posedge tb.clk);
         bins M1_from_idle = (2'b00 => 2'b01 => 2'b01 => 2'b01);
         bins M1_from_M1 = (2'b01 => 2'b01 => 2'b01 => 2'b01);
     }
+    // cp_accmodule: coverpoint tb.accmodule {
+        // bins is_M2
+    // }
+endgroup
+
+//Spec. 17
+covergroup cg_all_modules_doneable @(posedge tb.clk);
+    cp_done: coverpoint tb.done {
+        wildcard bins done_M1 = {3'b??1};
+        wildcard bins done_M2 = {3'b?1?};
+        wildcard bins done_M3 = {3'b1??};
+    }
+    cp_accmodule: coverpoint tb.accmodule {
+        bins M1_to_idle = (2'b01 => '0);
+        bins M2_to_idle = (2'b10 => '0);
+        bins M3_to_idle = (2'b11 => '0);
+    }
+    cp_both: cross cp_done, cp_accmodule {
+        option.cross_auto_bin_max = 0;
+
+        bins M1_done_acted_on = binsof(cp_done.done_M1) && binsof(cp_accmodule.M1_to_idle);
+        bins M2_done_acted_on = binsof(cp_done.done_M2) && binsof(cp_accmodule.M2_to_idle);
+        bins M3_done_acted_on = binsof(cp_done.done_M3) && binsof(cp_accmodule.M3_to_idle);
+    }
+endgroup
+
+// Spec. 18
+covergroup cg_cut_off_m2m3_after_2_cycle @(posedge tb.clk);
+    cp_req: coverpoint tb.iDUT.req {
+        wildcard bins req_M2 = { 3'b?0? };
+        wildcard bins req_M3 = { 3'b0?? };
+    }
+    cp_done: coverpoint tb.iDUT.done {
+        wildcard bins done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
+        wildcard bins done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
+    }
+    cp_transitions: coverpoint tb.iDUT.accmodule {
+        bins m2_cutoff = (2'b10 => 2'b10 => 2'b00);
+        bins m3_cutoff = (2'b11 => 2'b11 => 2'b00);
+        illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
+        illegal_bins m3_elapsed = (2'b11 => 2'b11 => 2'b11);
+    }
+    cp_both: cross cp_req, cp_done, cp_transitions;
+endgroup
+
+// Spec. 21-4
+covergroup cg_nb_interrupts @(posedge tb.clk);
+    cp_transitions: coverpoint tb.iDUT.accmodule {
+        bins m1_in_m2 = (2'b10 => 2'b01);
+        bins m1_in_m3 = (2'b11 => 2'b01);
+    }
+    cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
+        bins interruptions = {[1:2^32]};
+    }
+    cp_both: cross cp_transitions, cp_nb_interrupts;
 endgroup
