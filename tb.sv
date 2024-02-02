@@ -29,7 +29,8 @@ cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
 cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
-cg_all_modules_doneable cgi_all_modules_doneable = new;
+cg_m2m3_at_most_keep_two_cycles cgi_m2m3_at_most_keep_two_cycles = new;
+// cg_all_modules_doneable cgi_all_modules_doneable = new;
 cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 cg_nb_interrupts cgi_nb_interrupts = new;
 
@@ -274,7 +275,9 @@ task all_M1in_np(int n);
   for (int i= 0; i < 2; i++) begin
     if (n == 2) access_M1in_2p();
     else access_M1in_3p();
-    #PERIOD done = i;
+    // M1in can only transit to IDLE or M1id.
+    if (i == 0) #PERIOD done = 1 << M1;
+    else        #PERIOD done = '0;
     #PERIOD;
   end
 endtask

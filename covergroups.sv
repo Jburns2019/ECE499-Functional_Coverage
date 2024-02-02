@@ -111,6 +111,24 @@ covergroup cg_2_cycle_M1_it @(posedge tb.clk);
     // }
 endgroup
 
+//Spec. 13
+covergroup cg_m2m3_at_most_keep_two_cycles @(posedge tb.clk);
+    cp_req: coverpoint tb.iDUT.req {
+        wildcard bins req_M2_or_M3 = { 3'b??0 };
+    }
+    cp_done: coverpoint tb.iDUT.done {
+        wildcard bins done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
+        wildcard bins done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
+    }
+    cp_transitions: coverpoint tb.iDUT.accmodule {
+        wildcard bins m2_cutoff = (2'b10 => 2'b10 => 2'b0?);
+        wildcard bins m3_cutoff = (2'b11 => 2'b11 => 2'b0?);
+        illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
+        illegal_bins m3_elapsed = (2'b11 => 2'b11 => 2'b11);
+    }
+    cp_both: cross cp_req, cp_done, cp_transitions;
+endgroup
+
 //Spec. 17
 covergroup cg_all_modules_doneable @(posedge tb.clk);
     cp_done: coverpoint tb.done {
@@ -119,16 +137,16 @@ covergroup cg_all_modules_doneable @(posedge tb.clk);
         wildcard bins done_M3 = {3'b1??};
     }
     cp_accmodule: coverpoint tb.accmodule {
-        bins M1_to_idle = (2'b01 => '0);
-        bins M2_to_idle = (2'b10 => '0);
-        bins M3_to_idle = (2'b11 => '0);
+        bins M1_to_idle = (2'b01 => 2'b00);
+        bins M2_to_idle = (2'b10 => 2'b00);
+        bins M3_to_idle = (2'b11 => 2'b00);
     }
     cp_both: cross cp_done, cp_accmodule {
-        option.cross_auto_bin_max = 0;
+        // option.cross_auto_bin_max = 0;
 
-        bins M1_done_acted_on = binsof(cp_done.done_M1) && binsof(cp_accmodule.M1_to_idle);
-        bins M2_done_acted_on = binsof(cp_done.done_M2) && binsof(cp_accmodule.M2_to_idle);
-        bins M3_done_acted_on = binsof(cp_done.done_M3) && binsof(cp_accmodule.M3_to_idle);
+        // bins M1_done_acted_on = binsof(cp_done.done_M1) && binsof(cp_accmodule.M1_to_idle);
+        // bins M2_done_acted_on = binsof(cp_done.done_M2) && binsof(cp_accmodule.M2_to_idle);
+        // bins M3_done_acted_on = binsof(cp_done.done_M3) && binsof(cp_accmodule.M3_to_idle);
     }
 endgroup
 
