@@ -106,9 +106,18 @@ covergroup cg_2_cycle_M1_it @(posedge tb.clk);
         bins M1_from_idle = (2'b00 => 2'b01 => 2'b01 => 2'b01);
         bins M1_from_M1 = (2'b01 => 2'b01 => 2'b01 => 2'b01);
     }
-    // cp_accmodule: coverpoint tb.accmodule {
-        // bins is_M2
-    // }
+endgroup
+
+//Spec. 10
+covergroup cg_M2_and_M3_no_it @(posedge tb.clk);
+    cp_req: coverpoint tb.req {
+        bins req_M2 = {3'b010};
+        bins req_M3 = {3'b100};
+    }
+    cp_accmodule: coverpoint tb.accmodule {
+        illegal_bins improper_M2_to_M3_interrupt = (2'b10 => 2'b11);
+        illegal_bins improper_M3_to_M2_interrupt = (2'b11 => 2'b10);
+    }
 endgroup
 
 //Spec. 17
