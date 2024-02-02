@@ -146,7 +146,6 @@ covergroup cg_cut_off_m2m3_after_2_cycle @(posedge tb.clk);
         wildcard bins done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
     }
     cp_transitions: coverpoint tb.iDUT.accmodule {
-        // option.auto_bin_max = 0;
         bins m2_cutoff = (2'b10 => 2'b10 => 2'b00);
         bins m3_cutoff = (2'b11 => 2'b11 => 2'b00);
         illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
