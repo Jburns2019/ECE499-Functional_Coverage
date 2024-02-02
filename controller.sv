@@ -172,7 +172,7 @@ module controller(
           3'b010: ns[M2in_2p] = 1'b1;
           3'b110: ns[M2in_3p] = 1'b1;
           3'b100: ns[M3in_2p] = 1'b1;
-          3'b000: ns[M2sd_2p] = 1'b1; 
+          3'b000: ns[IDLE_2p] = 1'b1; 
         endcase
         mstate = 5'b01110;
         accmodule = 2'b10;

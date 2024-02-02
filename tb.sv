@@ -319,9 +319,6 @@ task all_M1id_np(int n);
     req = i;
     #PERIOD;
   end
-
-  if (n == 2) access_M1id_2p();
-  else access_M1id_3p();
 endtask
 
 task all_M1sd_np(int n);
