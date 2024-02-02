@@ -21,56 +21,60 @@ module tb();
   always
     #(PERIOD/2) clk = ~clk;
 
-cg_reset cgi_reset = new;
-cg_M1_interrupts cgi_M1_interrupts = new;
-cg_all_modules_requestable cgi_all_modules_requestable = new;
-cg_req_for_cycle cgi_req_for_cycle = new;
-cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
-cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
-cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
-cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
-cg_all_modules_doneable cgi_all_modules_doneable = new;
-cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
-cg_nb_interrupts cgi_nb_interrupts = new;
+  logic req_all_zero, req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
+  logic done_all_zero, done_has_not_changed, done_needs_to_change;
+
+// cg_reset cgi_reset = new;
+// cg_M1_interrupts cgi_M1_interrupts = new;
+// cg_all_modules_requestable cgi_all_modules_requestable = new;
+// cg_req_for_cycle cgi_req_for_cycle = new;
+// cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
+// cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
+// cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
+// cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
+// cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
+// //cg_all_modules_doneable cgi_all_modules_doneable = new;
+// cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
+// cg_nb_interrupts cgi_nb_interrupts = new;
+
+class Random_Class;
+  rand bit [2:0] req;
+  rand bit [2:0] done;
+  rand bit [2:0] reset;
+
+  constraint is_one_hot {done[0] ^ done[1] ^ done[2] && done != 3'b111;}
+endclass
+
+Random_Class randomizer = new;
+
+function need_to_rerandomize(logic [2:0] req, logic [2:0] done, logic [2:0] req_curr, logic [2:0] done_curr);
+  req_all_zero = req_curr != '0;
+  req_was_M1 = req[0] == req_curr[0] && req[0];
+  req_was_M2 = req[1] == req_curr[1] && req[1];
+  req_was_M3 = req[2] == req_curr[2] && req[2];
+  req_needs_to_change = req_all_zero && (req_was_M1 || req_was_M2 || req_was_M3);
+
+  done_all_zero = done_curr != '0;
+  done_has_not_changed = done == done_curr;
+  done_needs_to_change = done_all_zero && done_has_not_changed;
+
+  return req_needs_to_change || done_needs_to_change;
+endfunction
 
 initial begin
   clk = 0;
-  req = 3'b000;
-  done = 3'b000;
-  
-  access_IDLE_2p();
-  access_IDLE_3p();
 
-  access_M1in_2p();
-  access_M1in_3p();
-  access_M2in_2p();
-  access_M2in_3p();
-  access_M3in_2p();
-  access_M3in_3p();
+  randomizer.randomize();
+  repeat(5000) begin
+    while (need_to_rerandomize(req, done, randomizer.req, randomizer.done)) randomizer.randomize();
 
-  access_M1it_2p();
-  access_M1it_3p();
-
-  access_M1id_2p();
-  access_M1id_3p();
-  access_M1sd_2p();
-  access_M1sd_3p();
-  access_M2sd_2p();
-  access_M2sd_3p();
-  access_M3sd_2p();
-  access_M3sd_3p();
-
-  for (int n = 2; n < 4; n++) begin
-    all_IDLE_np(n);
-    all_M1in_np(n);
-    all_M2in_np(n);
-    all_M3in_np(n);
-    all_M1it_np(n);
-    all_M1id_np(n);
-    all_M1sd_np(n);
-    all_M2sd_np(n);
-    all_M3sd_np(n);
+    req = randomizer.req;
+    done = randomizer.done;
+    reset = randomizer.reset == '0;
+    #PERIOD;
   end
+
+  reset_inputs();
 
   access_M1in_2p();
   req = 1 << M1;
@@ -91,7 +95,7 @@ initial begin
   #PERIOD reset_inputs();
   #(3*PERIOD);
   assess_state("long M1 interrupts M3", 2'b00, accmodule);
-  
+
   # 20 $dumpflush;
   $stop;
 end
