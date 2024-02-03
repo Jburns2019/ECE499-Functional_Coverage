@@ -98,35 +98,45 @@ covergroup cg_req_M3_acted_on_edge @(posedge tb.req[2], posedge tb.accmodule[1] 
     }
 endgroup
 
-//Spec. 9
-covergroup cg_2_cycle_M1_it @(posedge tb.clk);
-    cp_accmodule: coverpoint tb.accmodule {
-        bins M1_it_M2 = (2'b10 => 2'b01 => 2'b01 => 2'b00);
-        bins M1_it_M3 = (2'b11 => 2'b01 => 2'b01 => 2'b00);
-        bins M1_from_idle = (2'b00 => 2'b01 => 2'b01 => 2'b01);
-        bins M1_from_M1 = (2'b01 => 2'b01 => 2'b01 => 2'b01);
-    }
-endgroup
-
 //Spec. 10
 covergroup cg_M2_and_M3_no_it @(posedge tb.clk);
     cp_mstate: coverpoint tb.mstate {
-        wildcard bins M2_in_sec_cycle = {5'b0111?};
-        wildcard bins M3_in_sec_cycle = {5'b1000?};
+        wildcard bins mstate_any = {5'b?????};
+        wildcard ignore_bins M2_in_sec_cycle = {5'b0111?};
+        wildcard ignore_bins M3_in_sec_cycle = {5'b1000?};
     }
     cp_done: coverpoint tb.done {
-        bins done_M1 = {3'b001};
+        wildcard bins done_any = {3'b???};
+        ignore_bins done_M1 = {3'b001};
+        ignore_bins done_M2 = {3'b010};
+        ignore_bins done_M3 = {3'b100};
     }
     cp_accmodule: coverpoint tb.accmodule {
         bins M2_to_M3 = (2'b10 => 2'b11);
         bins M3_to_M2 = (2'b11 => 2'b10);
+        bins M1_to_M2 = (2'b01 => 2'b10);
+        bins M1_to_M3 = (2'b01 => 2'b11);
     }
     cp_both: cross cp_mstate, cp_done, cp_accmodule {
         option.cross_auto_bin_max = 0;
-
-        illegal_bins improper_change_to_M3 = binsof(cp_accmodule.M2_to_M3) && !binsof(cp_done) && !binsof(cp_mstate.M2_in_sec_cycle);
-        illegal_bins improper_change_to_M2 = binsof(cp_accmodule.M3_to_M2) && !binsof(cp_done) && !binsof(cp_mstate.M3_in_sec_cycle);
+        
+        illegal_bins improper_M2_to_M3 = binsof(cp_accmodule.M2_to_M3) && binsof(cp_mstate) && binsof(cp_done);
+        illegal_bins improper_M3_to_M2 = binsof(cp_accmodule.M3_to_M2) && binsof(cp_mstate) && binsof(cp_done);
+        illegal_bins improper_M1_to_M2 = binsof(cp_accmodule.M1_to_M2) && binsof(cp_mstate) && binsof(cp_done);
+        illegal_bins improper_M1_to_M3 = binsof(cp_accmodule.M1_to_M3) && binsof(cp_mstate) && binsof(cp_done);
     }
+endgroup
+
+//Spec. 12
+covergroup cg_M2_M3_tie_breaker @(posedge tb.clk);
+    cp_req: coverpoint tb.req {
+        wildcard bins tie = (3'b110 => 3'b???);
+    }
+    cp_mstate: coverpoint tb.mstate {
+        wildcard bins got_to_M3in_2p = (5'b????? => 5'b00110);
+        wildcard bins got_to_M2in_3p = (5'b????? => 5'b00101);
+    }
+    cp_both: cross cp_req, cp_mstate;
 endgroup
 
 //Spec. 13
