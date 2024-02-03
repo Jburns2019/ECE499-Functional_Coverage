@@ -172,12 +172,12 @@ covergroup cg_smooth_trasitions @(posedge tb.clk);
     }
     cp_both: cross cp_req, cp_done, cp_transitions {
         option.cross_auto_bin_max = 0;
-        bins M1_to_M2 = binsof(cp_done.done_M1) && binsof(cp_req.req_M2) && binsof(cp_transitions.m1_to_m2);
-        bins M1_to_M3 = binsof(cp_done.done_M1) && binsof(cp_req.req_M3) && binsof(cp_transitions.m1_to_m3);
-        bins M2_to_M1 = binsof(cp_done.done_M2) && binsof(cp_req.req_M1) && binsof(cp_transitions.m2_to_m1);
-        bins M2_to_M3 = binsof(cp_done.done_M2) && binsof(cp_req.req_M3) && binsof(cp_transitions.m2_to_m3);
-        bins M3_to_M1 = binsof(cp_done.done_M3) && binsof(cp_req.req_M1) && binsof(cp_transitions.m3_to_m1);
-        bins M3_to_M2 = binsof(cp_done.done_M3) && binsof(cp_req.req_M2) && binsof(cp_transitions.m3_to_m2);
+        bins M1_smooth_to_M2 = binsof(cp_done.done_M1) && binsof(cp_req.req_M2) && binsof(cp_transitions.m1_to_m2);
+        bins M1_smooth_to_M3 = binsof(cp_done.done_M1) && binsof(cp_req.req_M3) && binsof(cp_transitions.m1_to_m3);
+        bins M2_smooth_to_M1 = binsof(cp_done.done_M2) && binsof(cp_req.req_M1) && binsof(cp_transitions.m2_to_m1);
+        bins M2_smooth_to_M3 = binsof(cp_done.done_M2) && binsof(cp_req.req_M3) && binsof(cp_transitions.m2_to_m3);
+        bins M3_smooth_to_M1 = binsof(cp_done.done_M3) && binsof(cp_req.req_M1) && binsof(cp_transitions.m3_to_m1);
+        bins M3_smooth_to_M2 = binsof(cp_done.done_M3) && binsof(cp_req.req_M2) && binsof(cp_transitions.m3_to_m2);
     }
 endgroup
 
