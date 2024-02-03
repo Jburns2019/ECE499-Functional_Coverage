@@ -24,22 +24,6 @@ module tb();
   logic req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
   logic done_all_zero, done_has_not_changed, done_needs_to_change;
 
-cg_reset cgi_reset = new;
-cg_M1_interrupts cgi_M1_interrupts = new;
-cg_all_modules_requestable cgi_all_modules_requestable = new;
-cg_req_for_cycle cgi_req_for_cycle = new;
-cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
-cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
-cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
-cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
-cg_M2_M3_tie_breaker cgi_M2_M3_tie_breaker = new;
-cg_smooth_trasitions cgi_smooth_trasitions = new;
-cg_modules_finish_access cgi_modules_finish_access = new;
-cg_invalid_access cgi_invalid_access = new;
-cg_all_modules_doneable cgi_all_modules_doneable = new;
-cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
-cg_nb_interrupts cgi_nb_interrupts = new;
-
 class Random_Class;
   rand bit [2:0] req;
   rand bit [2:0] done;
@@ -63,10 +47,40 @@ function need_to_rerandomize(logic [2:0] req, logic [2:0] done, logic [2:0] req_
   return req_needs_to_change || done_needs_to_change;
 endfunction
 
+cg_M1_interrupts cgi_M1_interrupts;
+cg_all_modules_requestable cgi_all_modules_requestable;
+cg_req_for_cycle cgi_req_for_cycle;
+cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge;
+cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge;
+cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge;
+cg_M2_and_M3_no_it cgi_M2_and_M3_no_it;
+cg_M2_M3_tie_breaker cgi_M2_M3_tie_breaker;
+cg_smooth_trasitions cgi_smooth_trasitions;
+cg_modules_finish_access cgi_modules_finish_access;
+cg_invalid_access cgi_invalid_access;
+cg_all_modules_doneable cgi_all_modules_doneable;
+cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle;
+cg_nb_interrupts cgi_nb_interrupts;
+
 initial begin
+  if ($test$plusargs("SPEC5")) begin cgi_M1_interrupts = new; end
+  if ($test$plusargs("SPEC6")) begin cgi_all_modules_requestable = new; end
+  if ($test$plusargs("SPEC7")) begin cgi_req_for_cycle = new; end
+  if ($test$plusargs("SPEC8_M1")) begin cgi_req_M1_acted_on_edge = new; end
+  if ($test$plusargs("SPEC8_M2")) begin cgi_req_M2_acted_on_edge = new; end
+  if ($test$plusargs("SPEC8_M3")) begin cgi_req_M3_acted_on_edge = new; end
+  if ($test$plusargs("SPEC10")) begin cgi_M2_and_M3_no_it = new; end
+  if ($test$plusargs("SPEC12")) begin cgi_M2_M3_tie_breaker = new; end
+  if ($test$plusargs("SPEC14")) begin cgi_smooth_trasitions = new; end
+  if ($test$plusargs("SPEC15")) begin cgi_modules_finish_access = new; end
+  if ($test$plusargs("SPEC17")) begin cgi_invalid_access = new; end
+  if ($test$plusargs("SPEC18")) begin cgi_all_modules_doneable = new; end
+  if ($test$plusargs("SPEC19")) begin cgi_cut_off_m2m3_after_2_cycle = new; end
+  if ($test$plusargs("SPEC21")) begin cgi_nb_interrupts = new; end
+
   clk = 0;
 
-  repeat(5000) begin
+  repeat(50000) begin
     randomizer.randomize();
     while (need_to_rerandomize(req, done, randomizer.req, randomizer.done)) begin
       randomizer.randomize();

@@ -1,18 +1,11 @@
-//Spec. 4
-covergroup cg_reset @(posedge tb.clk, posedge tb.reset);
-    cp_reset: coverpoint tb.reset {
-        bins reset = {1};
-    }
-    cp_accmodule: coverpoint tb.accmodule {
-        bins M1_to_idle = (2'b01 => '0);
-        bins M2_to_idle = (2'b10 => '0);
-        bins M3_to_idle = (2'b11 => '0);
-    }
-    cp_both: cross cp_reset, cp_accmodule;
-endgroup
-
 //Spec. 5
-covergroup cg_M1_interrupts @(posedge tb.clk, posedge tb.req[0]);
+covergroup cg_M1_interrupts @(posedge tb.clk);
+    cp_mstate: coverpoint tb.mstate {
+        wildcard bins M1_it_M2_2p = (5'b00100 => 5'b01000);
+        wildcard bins M1_it_M2_3p = (5'b00101 => 5'b01001);
+        wildcard bins M1_it_M3_2p = (5'b00110 => 5'b01000);
+        wildcard bins M1_it_M3_3p = (5'b00111 => 5'b01001);
+    }
     cp_accmodule: coverpoint tb.accmodule {
         bins M2_to_M1 = (2'b10 => 2'b01);
         bins M3_to_M1 = (2'b11 => 2'b01);
