@@ -129,38 +129,17 @@ covergroup cg_M2_and_M3_no_it @(posedge tb.clk);
     }
 endgroup
 
-//Spec. 13  illegal_bins M3_elapsed will collect ones.
-covergroup cg_m2m3_at_most_keep_two_cycles @(posedge tb.clk);
-    cp_no_req: coverpoint tb.req {
-        wildcard bins no_req_M2 = (3'b??? => 3'b?0? => 3'b?0?);
-        wildcard bins no_req_M3 = (3'b??? => 3'b0?? => 3'b0??);
-    }
-    cp_no_done: coverpoint tb.done {
-        wildcard bins no_done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
-        wildcard bins no_done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
-    }
-    cp_transitions: coverpoint tb.accmodule {
-        bins m2_three_clcyes = (2'b10 => 2'b10 => 2'b10);
-        bins m3_three_clcyes = (2'b11 => 2'b11 => 2'b11);
-    }
-    cp_both: cross cp_no_req, cp_no_done, cp_transitions {
-        option.cross_auto_bin_max = 0;
-        illegal_bins M2_elapsed = binsof(cp_no_req.no_req_M2) && binsof(cp_no_done.no_done_M2) && binsof(cp_transitions.m2_three_clcyes);
-        illegal_bins M3_elapsed = binsof(cp_no_req.no_req_M3) && binsof(cp_no_done.no_done_M3) && binsof(cp_transitions.m3_three_clcyes);
-    }
-endgroup
-
 //Spec. 14
 covergroup cg_smooth_trasitions @(posedge tb.clk);
     cp_done: coverpoint tb.done {
-        wildcard bins done_M1 = { 3'b??1 };
-        wildcard bins done_M2 = { 3'b?1? };
-        wildcard bins done_M3 = { 3'b1?? };
+        wildcard bins done_M1 = (3'b001 => 3'b???);
+        wildcard bins done_M2 = (3'b?10 => 3'b???);
+        wildcard bins done_M3 = (3'b1?0 => 3'b???);
     }
     cp_req: coverpoint tb.req {
-        wildcard bins req_M1 = { 3'b??1 };
-        wildcard bins req_M2 = { 3'b?10 };
-        wildcard bins req_M3 = { 3'b1?0 };
+        wildcard bins req_M1 = (3'b??1 => 3'b???);
+        wildcard bins req_M2 = (3'b?10 => 3'b???);
+        wildcard bins req_M3 = (3'b1?0 => 3'b???);
     }
     cp_transitions: coverpoint tb.accmodule {
         bins m1_to_m2 = (2'b01 => 2'b10);
@@ -170,7 +149,7 @@ covergroup cg_smooth_trasitions @(posedge tb.clk);
         bins m3_to_m1 = (2'b11 => 2'b01);
         bins m3_to_m2 = (2'b11 => 2'b10);
     }
-    cp_both: cross cp_req, cp_done, cp_transitions {
+    cp_both: cross cp_done, cp_req, cp_transitions {
         option.cross_auto_bin_max = 0;
         bins M1_smooth_to_M2 = binsof(cp_done.done_M1) && binsof(cp_req.req_M2) && binsof(cp_transitions.m1_to_m2);
         bins M1_smooth_to_M3 = binsof(cp_done.done_M1) && binsof(cp_req.req_M3) && binsof(cp_transitions.m1_to_m3);
@@ -204,20 +183,26 @@ endgroup
 // Spec. 18
 covergroup cg_cut_off_m2m3_after_2_cycle @(posedge tb.clk);
     cp_req: coverpoint tb.req {
-        wildcard bins req_M2 = { 3'b?0? };
-        wildcard bins req_M3 = { 3'b0?? };
+        wildcard bins no_req_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
+        wildcard bins no_req_M3 = (3'b0?? => 3'b0?? => 3'b0??);
     }
     cp_done: coverpoint tb.done {
-        wildcard bins done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
-        wildcard bins done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
+        wildcard bins no_done_M2 = (3'b?0? => 3'b?0? => 3'b?0?);
+        wildcard bins no_done_M3 = (3'b0?? => 3'b0?? => 3'b0??);
     }
     cp_transitions: coverpoint tb.accmodule {
-        bins m2_cutoff = (2'b10 => 2'b10 => 2'b00);
-        bins m3_cutoff = (2'b11 => 2'b11 => 2'b00);
-        illegal_bins m2_elapsed = (2'b10 => 2'b10 => 2'b10);
-        illegal_bins m3_elapsed = (2'b11 => 2'b11 => 2'b11);
+        bins M2_cutoff = (2'b10 => 2'b10 => 2'b00);
+        bins M3_cutoff = (2'b11 => 2'b11 => 2'b00);
+        bins M2_elapsed = (2'b10 => 2'b10 => 2'b10);
+        bins M3_elapsed = (2'b11 => 2'b11 => 2'b11);
     }
-    cp_both: cross cp_req, cp_done, cp_transitions;
+    cp_both: cross cp_req, cp_done, cp_transitions {
+        option.cross_auto_bin_max = 0;
+        bins cutoff_M2 = binsof(cp_req.no_req_M2) && binsof(cp_done.no_done_M2) && binsof(cp_transitions.M2_cutoff);
+        bins cutoff_M3 = binsof(cp_req.no_req_M3) && binsof(cp_done.no_done_M3) && binsof(cp_transitions.M3_cutoff);
+        illegal_bins elapsed_M2 = binsof(cp_req.no_req_M2) && binsof(cp_done.no_done_M2) && binsof(cp_transitions.M2_elapsed);
+        illegal_bins elapsed_M3 = binsof(cp_req.no_req_M3) && binsof(cp_done.no_done_M3) && binsof(cp_transitions.M3_elapsed);
+    }
 endgroup
 
 // Spec. 21-4
@@ -227,7 +212,7 @@ covergroup cg_nb_interrupts @(posedge tb.clk);
         bins m1_in_m3 = (2'b11 => 2'b01);
     }
     cp_nb_interrupts: coverpoint tb.iDUT.nb_interrupts {
-        bins interruptions = {[1:2^32]};
+        bins interruptions = {[1:2**32]};
     }
     cp_both: cross cp_transitions, cp_nb_interrupts;
 endgroup
