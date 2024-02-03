@@ -33,7 +33,9 @@ module tb();
 // cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 // cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
 // cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
-// //cg_all_modules_doneable cgi_all_modules_doneable = new;
+cg_m2m3_at_most_keep_two_cycles cgi_m2m3_at_most_keep_two_cycles = new; // spec.13
+// cg_smooth_trasitions cgi_smooth_trasitions = new;
+// cg_all_modules_doneable cgi_all_modules_doneable = new;
 // cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 // cg_nb_interrupts cgi_nb_interrupts = new;
 
