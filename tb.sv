@@ -21,7 +21,7 @@ module tb();
   always
     #(PERIOD/2) clk = ~clk;
 
-  logic req_all_zero, req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
+  logic req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
   logic done_all_zero, done_has_not_changed, done_needs_to_change;
 
 cg_reset cgi_reset = new;
@@ -33,7 +33,10 @@ cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
 cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
 cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
+cg_M2_M3_tie_breaker cgi_M2_M3_tie_breaker = new;
 cg_smooth_trasitions cgi_smooth_trasitions = new;
+cg_modules_finish_access cgi_modules_finish_access = new;
+cg_invalid_access cgi_invalid_access = new;
 cg_all_modules_doneable cgi_all_modules_doneable = new;
 cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
 cg_nb_interrupts cgi_nb_interrupts = new;
@@ -49,11 +52,10 @@ endclass
 Random_Class randomizer = new;
 
 function need_to_rerandomize(logic [2:0] req, logic [2:0] done, logic [2:0] req_curr, logic [2:0] done_curr);
-  req_all_zero = req_curr != '0;
   req_was_M1 = req[0] == req_curr[0] && req[0];
   req_was_M2 = req[1] == req_curr[1] && req[1];
   req_was_M3 = req[2] == req_curr[2] && req[2];
-  req_needs_to_change = req_all_zero && (req_was_M1 || req_was_M2 || req_was_M3);
+  req_needs_to_change = req_was_M1 || req_was_M2 || req_was_M3;
 
   done_all_zero = done_curr != '0;
   done_has_not_changed = done == done_curr;
@@ -65,9 +67,11 @@ endfunction
 initial begin
   clk = 0;
 
-  randomizer.randomize();
   repeat(5000) begin
-    while (need_to_rerandomize(req, done, randomizer.req, randomizer.done)) randomizer.randomize();
+    randomizer.randomize();
+    while (need_to_rerandomize(req, done, randomizer.req, randomizer.done)) begin
+      randomizer.randomize();
+    end
 
     req = randomizer.req;
     done = randomizer.done;
