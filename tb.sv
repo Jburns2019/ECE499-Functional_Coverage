@@ -31,7 +31,6 @@ cg_req_for_cycle cgi_req_for_cycle = new;
 cg_req_M1_acted_on_edge cgi_req_M1_acted_on_edge = new;
 cg_req_M2_acted_on_edge cgi_req_M2_acted_on_edge = new;
 cg_req_M3_acted_on_edge cgi_req_M3_acted_on_edge = new;
-cg_2_cycle_M1_it cgi_2_cycle_M1_it = new;
 cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
 cg_M2_M3_tie_breaker cgi_M2_M3_tie_breaker = new;
 cg_smooth_trasitions cgi_smooth_trasitions = new;
