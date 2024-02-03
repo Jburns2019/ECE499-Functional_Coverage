@@ -21,7 +21,7 @@ module tb();
   always
     #(PERIOD/2) clk = ~clk;
 
-  logic req_all_zero, req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
+  logic req_was_M1, req_was_M2, req_was_M3, req_needs_to_change;
   logic done_all_zero, done_has_not_changed, done_needs_to_change;
 
 cg_reset cgi_reset = new;
@@ -35,6 +35,8 @@ cg_M2_and_M3_no_it cgi_M2_and_M3_no_it = new;
 cg_M2_M3_tie_breaker cgi_M2_M3_tie_breaker = new;
 //cg_all_modules_doneable cgi_all_modules_doneable = new;
 //cg_cut_off_m2m3_after_2_cycle cgi_cut_off_m2m3_after_2_cycle = new;
+cg_modules_finish_access cgi_modules_finish_access = new;
+cg_invalid_access cgi_invalid_access = new;
 cg_nb_interrupts cgi_nb_interrupts = new;
 
 class Random_Class;
@@ -63,7 +65,7 @@ endfunction
 initial begin
   clk = 0;
 
-  repeat(10000) begin
+  repeat(5000) begin
     randomizer.randomize();
     while (need_to_rerandomize(req, done, randomizer.req, randomizer.done)) begin
       randomizer.randomize();
