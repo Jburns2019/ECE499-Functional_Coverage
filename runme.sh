@@ -8,7 +8,7 @@ if [ ! -d "work" ]; then
 fi
 
 #Compile the sv file.
-vlog controller.sv tb.sv covergroups.sv +fcover -cover sbcef +cover=f -O0
+vlog controller.sv tb.sv covergroups.sv +fcover #-cover sbcef +cover=f -O0
 
 #Simulate states.
 vsim tb -c -coverage -do cover.do
